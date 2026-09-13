@@ -1,0 +1,7 @@
+import { AppIcon } from "../../components/AppIcon";
+
+const scores = [["Technical Skills", "82%", "strong"], ["Communication", "64%", "developing"], ["Leadership", "55%", "priority"], ["Safety", "91%", "strong"]];
+
+export function AssessmentResult({ onViewGap }) {
+  return <><div className="page-head"><div><p className="eyebrow">ASSESSMENT COMPLETE</p><h1>Your competency result</h1></div><button className="button outline">Download result <AppIcon name="Download" size={16} /></button></div><section className="result-hero"><div><p>OVERALL COMPETENCY</p><b>72%</b></div><div><p>ROLE REQUIREMENT</p><b>85%</b></div><div className="result-gap"><b>13%</b><span>gap to close</span></div></section><section className="result-breakdown"><div className="section-title"><div><p className="eyebrow">COMPETENCY BREAKDOWN</p><h2>What your assessment found</h2></div></div>{scores.map(([name, score, state]) => <div className="result-row" key={name}><b>{name}</b><strong>{score}</strong><span className={state}>{state === "priority" ? "Focus area" : state}</span></div>)}</section><section className="next-step"><AppIcon name="Compass" /><div><p className="eyebrow">RECOMMENDED NEXT STEP</p><h3>Close your Leadership gap first</h3><p>Leadership Essentials directly addresses the largest gap in your assessed competency.</p></div><button className="button dark" onClick={onViewGap}>View skill gap</button></section></>;
+}
