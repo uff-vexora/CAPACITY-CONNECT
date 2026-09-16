@@ -1,0 +1,11 @@
+import express from "express";
+import User from "../models/User.js";
+import Course from "../models/Course.js";
+import Result from "../models/Result.js";
+import Progress from "../models/Progress.js";
+import { protect, authorize } from "../middleware/auth.js";
+const router = express.Router();
+router.use(protect, authorize("admin"));
+router.get("/users", async (req, res, next) => { try { const users = await User.find().select("-password"); res.json({ users }); } catch (e) { next(e); } });
+router.get("/analytics", async (req, res, next) => { try { const [trainees, trainers, courses, results, progress] = await Promise.all([User.countDocuments({ role: "trainee" }), User.countDocuments({ role: "trainer" }), Course.countDocuments(), Result.find(), Progress.find()]); const averageCompetency = results.length ? Math.round(results.reduce((sum, item) => sum + item.score, 0) / results.length) : 0; const gaps = {}; results.forEach((result) => result.skillScores.filter((score) => score.gap > 0).forEach((score) => { gaps[score.skill] = (gaps[score.skill] || 0) + 1; })); const commonSkillGaps = Object.entries(gaps).map(([skill, employees]) => ({ skill, employees })).sort((a, b) => b.employees - a.employees); const completion = progress.length ? Math.round(progress.reduce((sum, item) => sum + item.percent, 0) / progress.length) : 0; res.json({ trainees, trainers, courses, averageCompetency, commonSkillGaps, completion }); } catch (e) { next(e); } });
+export default router;

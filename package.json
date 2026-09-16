@@ -10,14 +10,30 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
+    "axios": "^1.20.0",
     "lucide-react": "latest",
+    "mongodb": "^7.6.0",
     "react": "latest",
     "react-dom": "latest",
+    "react-router-dom": "^7.18.3",
     "vite": "latest"
   },
   "devDependencies": {
     "autoprefixer": "^10.6.0",
     "postcss": "^8.5.28",
     "tailwindcss": "^3.4.19"
-  }
+  },
+  "description": "",
+  "main": "postcss.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uff-vexora/CAPACITY-CONNECT.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uff-vexora/CAPACITY-CONNECT/issues"
+  },
+  "homepage": "https://github.com/uff-vexora/CAPACITY-CONNECT#readme"
 }

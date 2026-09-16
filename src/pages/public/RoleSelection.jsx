@@ -28,7 +28,7 @@ export function RoleSelection({ role, setPage, setRole }) {
 
   const handleContinue = () => {
     setRole(selected);
-    setPage("Dashboard");
+    setPage("Signup");
   };
 
   return (
@@ -43,7 +43,7 @@ export function RoleSelection({ role, setPage, setRole }) {
       <div className="auth-card roles">
         <p className="eyebrow">SELECT WORKSPACE</p>
         <h1>Choose your role</h1>
-        <p>Select which portal you would like to enter for this session.</p>
+        <p>Select the workspace you want to create an account for.</p>
 
         <div>
           {roles.map((r) => {

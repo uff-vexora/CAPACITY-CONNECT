@@ -8,6 +8,8 @@ export function AppShell({
   setPage,
   sidebar,
   setSidebar,
+  user,
+  onLogout,
   children,
 }) {
   const nav =
@@ -37,15 +39,15 @@ export function AppShell({
           ))}
         </nav>
         <div className="side-bottom">
-          <button onClick={() => setPage("Landing")}>
+          <button onClick={onLogout}>
             <Icon name="LogOut" />
             Exit workspace
           </button>
           <div className="person">
-            <span>RS</span>
+            <span>{user?.name?.split(" ").map((part) => part[0]).join("").slice(0, 2) || "CC"}</span>
             <div>
-              <b>Rahul Sharma</b>
-              <small>Operations Associate</small>
+              <b>{user?.name}</b>
+              <small>{user?.designation || role}</small>
             </div>
             <Icon name="ChevronsUpDown" size={15} />
           </div>
@@ -68,7 +70,7 @@ export function AppShell({
             <button className="icon-button notice">
               <Icon name="Bell" />
             </button>
-            <div className="avatar">RS</div>
+            <div className="avatar">{user?.name?.split(" ").map((part) => part[0]).join("").slice(0, 2) || "CC"}</div>
           </div>
         </header>
         <main className="content">{children}</main>

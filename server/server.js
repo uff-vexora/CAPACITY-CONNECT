@@ -1,0 +1,21 @@
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import { connectDatabase } from "./config/db.js";
+import authRoutes from "./routes/auth.js";
+import courseRoutes from "./routes/courses.js";
+import assessmentRoutes from "./routes/assessments.js";
+import recommendationRoutes from "./routes/recommendations.js";
+import adminRoutes from "./routes/admin.js";
+
+const app = express();
+app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
+app.use(express.json());
+app.get("/api/health", (req, res) => res.json({ status: "ok" }));
+app.use("/api/auth", authRoutes);
+app.use("/api/courses", courseRoutes);
+app.use("/api/assessments", assessmentRoutes);
+app.use("/api/recommendations", recommendationRoutes);
+app.use("/api/admin", adminRoutes);
+app.use((error, req, res, next) => { console.error(error); res.status(500).json({ message: error.message || "Something went wrong" }); });
+connectDatabase().then(() => app.listen(process.env.PORT || 5000, () => console.log(`API listening on ${process.env.PORT || 5000}`))).catch((error) => { console.error(error.message); process.exit(1); });

@@ -1,16 +1,24 @@
 import { useState } from "react";
 import { AppIcon as Icon } from "../../components/AppIcon";
 import { Brand } from "../../components/Brand";
+import { api } from "../../api";
 
-export function AuthForm({ page, setPage }) {
+export function AuthForm({ page, setPage, role = "Trainee", onAuthenticated }) {
   const isLogin = page === "Login";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setPage("Role Selection");
+    setError("");
+    setLoading(true);
+    try {
+      const result = isLogin ? await api.login({ email, password }) : await api.signup({ name, email, password, role: role.toLowerCase() });
+      onAuthenticated(result);
+    } catch (err) { setError(err.message); } finally { setLoading(false); }
   };
 
   return (
@@ -68,8 +76,9 @@ export function AuthForm({ page, setPage }) {
           </label>
 
           <button type="submit" className="button dark wide" style={{ marginTop: 24 }}>
-            {isLogin ? "Sign In" : "Create Account"} <Icon name="ArrowRight" size={16} />
+            {loading ? "Please wait…" : isLogin ? "Sign In" : "Create Account"} <Icon name="ArrowRight" size={16} />
           </button>
+          {error && <p style={{ color: "var(--rust)", fontSize: 13, marginTop: 14 }}>{error}</p>}
         </form>
 
         <div className="auth-switch">
