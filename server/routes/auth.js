@@ -5,7 +5,10 @@ import { protect } from "../middleware/auth.js";
 
 const router = express.Router();
 const safeUser = (user) => ({ id: user._id, name: user.name, email: user.email, role: user.role, department: user.department, designation: user.designation, skills: user.skills, experience: user.experience, qualifications: user.qualifications, interests: user.interests });
-const tokenFor = (user) => jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "7d" });
+const tokenFor = (user) => {
+  if (!process.env.JWT_SECRET) throw new Error("Server authentication is not configured");
+  return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "7d" });
+};
 
 router.post("/signup", async (req, res, next) => {
   try {

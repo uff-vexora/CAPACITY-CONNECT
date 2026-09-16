@@ -1,11 +1,34 @@
-const API_URL =
+const API_URL = (
   import.meta.env.VITE_API_URL ||
-  "https://capacity-connect-1-qmzj.onrender.com";
+  "https://capacity-connect-1-qmzj.onrender.com/api"
+).replace(/\/$/, "");
+
 async function request(path, options = {}) {
   const token = localStorage.getItem("capacity_token");
-  const response = await fetch(`${API_URL}/api${path}`, { ...options, headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.headers } });
-  const body = response.status === 204 ? null : await response.json();
-  if (!response.ok) throw new Error(body?.message || "Something went wrong");
+  let response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+    });
+  } catch {
+    throw new Error("Unable to reach Capacity Connect. Please check your connection and try again.");
+  }
+
+  const isJson = response.headers.get("content-type")?.includes("application/json");
+  const body = response.status === 204 ? null : isJson ? await response.json() : null;
+
+  if (!response.ok) {
+    throw new Error(body?.message || `Request failed (${response.status}). Please try again.`);
+  }
+
+  if (response.status !== 204 && !isJson) {
+    throw new Error("The server returned an unexpected response. Please try again.");
+  }
   return body;
 }
 export const api = {
