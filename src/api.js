@@ -3,7 +3,7 @@ const API_URL =
   "https://capacity-connect-1-qmzj.onrender.com";
 async function request(path, options = {}) {
   const token = localStorage.getItem("capacity_token");
-  const response = await fetch(`${API_URL}${path}`, { ...options, headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.headers } });
+  const response = await fetch(`${API_URL}/api${path}`, { ...options, headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.headers } });
   const body = response.status === 204 ? null : await response.json();
   if (!response.ok) throw new Error(body?.message || "Something went wrong");
   return body;
