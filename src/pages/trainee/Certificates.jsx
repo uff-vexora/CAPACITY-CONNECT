@@ -1,8 +1,10 @@
 import { useState, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { AppIcon as Icon } from "../../components/AppIcon";
 import { PageHead } from "../../components/PageHead";
 import { Brand } from "../../components/Brand";
 import { DEFAULT_USER } from "../../data/user";
+import { loadAssessmentResults } from "../../data/assessments";
 
 export function Certificates({ courses = [], user: initialUser, setPage }) {
   const user = initialUser || DEFAULT_USER;
@@ -41,22 +43,31 @@ export function Certificates({ courses = [], user: initialUser, setPage }) {
     [user.name]
   );
 
-  // Dynamic certificates for courses completed 100%
+  const assessmentResults = useMemo(() => loadAssessmentResults(), []);
+
+  // Dynamic certificates for courses completed 100% OR passed assessment (>=80%)
   const courseCerts = useMemo(() => {
     return courses
-      .filter((c) => c.progress === 100)
-      .map((c) => ({
-        id: `CC-2026-${c.id.replace(/-/g, "").slice(0, 4).toUpperCase()}-9812`,
-        title: `${c.title} Mastery`,
-        area: `${c.area} Competency`,
-        completedDate: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
-        trainer: c.trainer || "Anita Verma",
-        trainerTitle: "Senior Capability Facilitator",
-        score: "98%",
-        recipient: user.name || "Alex Morgan",
-        description: c.overview || `Demonstrated full modular competence and verified mastery in ${c.title}.`,
-      }));
-  }, [courses, user.name]);
+      .filter((c) => c.progress === 100 || (assessmentResults[c.id] && assessmentResults[c.id].passed))
+      .map((c) => {
+        const assessmentResult = assessmentResults[c.id];
+        const displayScore = assessmentResult ? `${assessmentResult.score}%` : "98%";
+        const completedDate =
+          assessmentResult?.date ||
+          new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+        return {
+          id: `CC-2026-${c.id.replace(/-/g, "").slice(0, 4).toUpperCase()}-9812`,
+          title: `${c.title} Mastery`,
+          area: `${c.area || "Professional"} Competency`,
+          completedDate,
+          trainer: c.trainer || "Anita Verma",
+          trainerTitle: "Senior Capability Facilitator",
+          score: displayScore,
+          recipient: user.name || "Alex Morgan",
+          description: c.overview || `Demonstrated full modular competence and verified mastery in ${c.title}.`,
+        };
+      });
+  }, [courses, user.name, assessmentResults]);
 
   const allCertificates = useMemo(() => {
     return [...courseCerts, ...baselineCerts];
@@ -64,8 +75,11 @@ export function Certificates({ courses = [], user: initialUser, setPage }) {
 
   // Locked / In-Progress courses with progress towards certificate
   const inProgressCerts = useMemo(() => {
-    return courses.filter((c) => c.progress > 0 && c.progress < 100);
-  }, [courses]);
+    return courses.filter((c) => {
+      const isPassed = assessmentResults[c.id]?.passed;
+      return !isPassed && c.progress < 100;
+    });
+  }, [courses, assessmentResults]);
 
   const handlePrint = () => {
     window.print();
@@ -280,27 +294,17 @@ export function Certificates({ courses = [], user: initialUser, setPage }) {
       )}
 
       {/* Professional Certificate Viewer & Print Modal */}
-      {selectedCert && (
-        <div className="certificate-modal-overlay" onClick={() => setSelectedCert(null)}>
-          <div
-            className="certificate-modal-container"
-            onClick={(e) => e.stopPropagation()}
-            ref={printRef}
-          >
-            {/* Modal Controls Toolbar (Hidden on print) */}
+      {selectedCert &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="certificate-modal-overlay" onClick={() => setSelectedCert(null)}>
             <div
-              className="no-print"
-              style={{
-                background: "#22251f",
-                color: "#fff",
-                padding: "14px 24px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                flexWrap: "wrap",
-                gap: 12,
-              }}
+              className="certificate-modal-container"
+              onClick={(e) => e.stopPropagation()}
+              ref={printRef}
             >
+              {/* Modal Controls Toolbar (Sticky at top, never cuts off or hides) */}
+              <div className="certificate-modal-toolbar no-print">
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <Icon name="Award" size={20} style={{ color: "var(--orange)" }} />
                 <b style={{ fontSize: 14 }}>Official Certificate Credential</b>
@@ -343,10 +347,22 @@ export function Certificates({ courses = [], user: initialUser, setPage }) {
 
                 <button
                   onClick={() => setSelectedCert(null)}
-                  style={{ color: "#bfc2b8", padding: 6, cursor: "pointer", marginLeft: 8 }}
+                  style={{
+                    color: "#fff",
+                    background: "rgba(255,255,255,0.12)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    borderRadius: 4,
+                    padding: "6px 12px",
+                    cursor: "pointer",
+                    marginLeft: 6,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    fontSize: 12,
+                  }}
                   title="Close viewer"
                 >
-                  <Icon name="X" size={18} />
+                  <Icon name="X" size={16} /> Close
                 </button>
               </div>
             </div>
@@ -535,7 +551,8 @@ export function Certificates({ courses = [], user: initialUser, setPage }) {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

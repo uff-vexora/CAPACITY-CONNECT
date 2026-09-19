@@ -20,6 +20,9 @@ export function TraineeRoutes({ page, setPage, user, setUser }) {
   const [selectedCourseId, setSelectedCourseId] = useState(() => {
     return localStorage.getItem("capacity_selected_course") || "leadership-essentials";
   });
+  const [selectedAssessmentCourseId, setSelectedAssessmentCourseId] = useState(() => {
+    return localStorage.getItem("capacity_selected_assessment_course") || "leadership-essentials";
+  });
 
   // Calculate dynamic courses list with trainee progress
   const courseList = useMemo(() => getCourses(userProgress), [userProgress]);
@@ -131,10 +134,37 @@ export function TraineeRoutes({ page, setPage, user, setUser }) {
     });
   };
 
+  // Direct jump to course-specific assessment
+  const handleGoToAssessment = (courseId) => {
+    const targetId = courseId || selectedCourseId || "leadership-essentials";
+    setSelectedAssessmentCourseId(targetId);
+    try {
+      localStorage.setItem("capacity_selected_assessment_course", targetId);
+    } catch (e) {
+      console.error(e);
+    }
+    setPage("Assessment");
+  };
+
   if (page === "Dashboard")
     return <TraineeDashboard setPage={setPage} courses={courseList} onSelectCourse={handleSelectCourse} />;
 
-  if (page === "Assessment") return <Assessment setPage={setPage} />;
+  if (page === "Assessment")
+    return (
+      <Assessment
+        setPage={setPage}
+        initialCourseId={selectedAssessmentCourseId}
+        courses={courseList}
+        onSelectCourseAssessment={(courseId) => {
+          setSelectedAssessmentCourseId(courseId);
+          try {
+            localStorage.setItem("capacity_selected_assessment_course", courseId);
+          } catch (e) {
+            console.error(e);
+          }
+        }}
+      />
+    );
 
   if (page === "Assessment Result") return <AssessmentResult onViewGap={() => setPage("Skill Gap")} />;
 
@@ -150,6 +180,7 @@ export function TraineeRoutes({ page, setPage, user, setUser }) {
         onStartLearning={(id) => handleSelectCourse(id || selectedCourse.id, "Learning")}
         onEnroll={handleEnrollCourse}
         onBack={() => setPage("My Courses")}
+        onGoToAssessment={handleGoToAssessment}
       />
     );
 

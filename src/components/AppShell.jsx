@@ -85,7 +85,7 @@ export function AppShell({
           </button>
         </div>
 
-        <div className="role-tag">{role.toUpperCase()} WORKSPACE</div>
+        {!collapsed && <div className="role-tag">{role.toUpperCase()} WORKSPACE</div>}
 
         <nav>
           {nav.map(([icon, name]) => {

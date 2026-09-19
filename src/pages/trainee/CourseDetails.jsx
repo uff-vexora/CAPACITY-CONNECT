@@ -1,6 +1,6 @@
 import { AppIcon } from "../../components/AppIcon";
 
-export function CourseDetails({ course, onStartLearning, onEnroll, onBack }) {
+export function CourseDetails({ course, onStartLearning, onEnroll, onBack, onGoToAssessment }) {
   if (!course) {
     return (
       <div className="empty-courses">
@@ -94,9 +94,17 @@ export function CourseDetails({ course, onStartLearning, onEnroll, onBack }) {
           <p style={{ color: "#45483f", lineHeight: 1.6 }}>
             Curated specifically for your role progression with verified video instruction and actionable takeaways.
           </p>
-          <button className="button warm" onClick={handleStart} style={{ marginTop: 18 }}>
+          <button className="button warm" onClick={handleStart} style={{ marginTop: 18, width: "100%", justifyContent: "center" }}>
             {isEnrolled && course.progress > 0 ? "Resume Lessons" : "Start Learning"}{" "}
             <AppIcon name="Play" size={15} />
+          </button>
+          <button
+            type="button"
+            className="button dark"
+            onClick={() => onGoToAssessment && onGoToAssessment(course.id)}
+            style={{ marginTop: 10, width: "100%", justifyContent: "center", gap: 8 }}
+          >
+            Go to Assessment <AppIcon name="ClipboardCheck" size={16} />
           </button>
         </aside>
       </div>
