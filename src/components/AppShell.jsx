@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { AppIcon as Icon } from "./AppIcon";
 import { Brand } from "./Brand";
+import { SearchModal } from "./SearchModal";
 import { adminNav, traineeNav, trainerNav } from "../data/navigation";
 import { loadNotifications } from "../data/notifications";
 
@@ -23,11 +24,24 @@ export function AppShell({
   });
 
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     const notifs = loadNotifications();
     setUnreadCount(notifs.filter((n) => !n.read).length);
   }, [page]);
+
+  // Global Ctrl+K / Cmd+K listener
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const toggleCollapsed = () => {
     setCollapsed((prev) => {
@@ -153,6 +167,13 @@ export function AppShell({
 
           <div className="top-actions">
             <button
+              className="icon-button"
+              title="Search (Ctrl+K)"
+              onClick={() => setIsSearchOpen(true)}
+            >
+              <Icon name="Search" />
+            </button>
+            <button
               className={`icon-button ${unreadCount > 0 ? "notice" : ""}`}
               title={`Notifications (${unreadCount} unread)`}
               onClick={() => setPage("Notifications")}
@@ -186,6 +207,12 @@ export function AppShell({
 
         <main className="content">{children}</main>
       </div>
+
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        setPage={setPage}
+      />
     </div>
   );
 }
