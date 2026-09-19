@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppIcon as Icon } from "./AppIcon";
 import { Brand } from "./Brand";
 import { adminNav, traineeNav, trainerNav } from "../data/navigation";
+import { loadNotifications } from "../data/notifications";
 
 export function AppShell({
   role,
@@ -20,6 +21,13 @@ export function AppShell({
       return false;
     }
   });
+
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const notifs = loadNotifications();
+    setUnreadCount(notifs.filter((n) => !n.read).length);
+  }, [page]);
 
   const toggleCollapsed = () => {
     setCollapsed((prev) => {
@@ -40,6 +48,14 @@ export function AppShell({
         ? trainerNav
         : adminNav;
 
+  const userInitials =
+    user?.name
+      ?.split(" ")
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "AM";
+
   return (
     <div className="app-shell">
       <aside className={`${sidebar ? "open" : ""} ${collapsed ? "collapsed" : ""}`}>
@@ -58,20 +74,39 @@ export function AppShell({
         <div className="role-tag">{role.toUpperCase()} WORKSPACE</div>
 
         <nav>
-          {nav.map(([icon, name]) => (
-            <button
-              key={name}
-              className={page === name ? "active" : ""}
-              title={name}
-              onClick={() => {
-                setPage(name);
-                setSidebar(false);
-              }}
-            >
-              <Icon name={icon} />
-              <span className="nav-label">{name}</span>
-            </button>
-          ))}
+          {nav.map(([icon, name]) => {
+            const isNotif = name === "Notifications";
+            return (
+              <button
+                key={name}
+                className={page === name ? "active" : ""}
+                title={name}
+                onClick={() => {
+                  setPage(name);
+                  setSidebar(false);
+                }}
+              >
+                <Icon name={icon} />
+                <span className="nav-label">{name}</span>
+                {isNotif && unreadCount > 0 && (
+                  <span
+                    className="nav-badge"
+                    style={{
+                      marginLeft: "auto",
+                      background: "var(--rust)",
+                      color: "#fff",
+                      borderRadius: 10,
+                      padding: "1px 6px",
+                      fontSize: 10,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </nav>
 
         <div className="side-bottom">
@@ -79,10 +114,15 @@ export function AppShell({
             <Icon name="LogOut" />
             <span className="nav-label">Exit workspace</span>
           </button>
-          <div className="person" title={user?.name || "Trainee"}>
-            <span>{user?.name?.split(" ").map((part) => part[0]).join("").slice(0, 2) || "CC"}</span>
+          <div
+            className="person"
+            title="View profile"
+            onClick={() => setPage("My Profile")}
+            style={{ cursor: "pointer" }}
+          >
+            <span>{userInitials}</span>
             <div>
-              <b>{user?.name}</b>
+              <b>{user?.name || "Alex Morgan"}</b>
               <small>{user?.designation || role}</small>
             </div>
             <Icon name="ChevronsUpDown" size={15} />
@@ -112,14 +152,34 @@ export function AppShell({
           </div>
 
           <div className="top-actions">
-            <button className="icon-button" title="Search">
-              <Icon name="Search" />
-            </button>
-            <button className="icon-button notice" title="Notifications">
+            <button
+              className={`icon-button ${unreadCount > 0 ? "notice" : ""}`}
+              title={`Notifications (${unreadCount} unread)`}
+              onClick={() => setPage("Notifications")}
+              style={{ position: "relative" }}
+            >
               <Icon name="Bell" />
+              {unreadCount > 0 && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: 2,
+                    right: 2,
+                    width: 7,
+                    height: 7,
+                    borderRadius: "50%",
+                    background: "var(--rust)",
+                  }}
+                />
+              )}
             </button>
-            <div className="avatar" title={user?.name}>
-              {user?.name?.split(" ").map((part) => part[0]).join("").slice(0, 2) || "CC"}
+            <div
+              className="avatar"
+              title="View profile"
+              onClick={() => setPage("My Profile")}
+              style={{ cursor: "pointer" }}
+            >
+              {userInitials}
             </div>
           </div>
         </header>

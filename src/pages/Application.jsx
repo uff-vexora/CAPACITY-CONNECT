@@ -6,17 +6,79 @@ import { TraineeRoutes } from "./trainee/TraineeRoutes";
 import { TrainerRoutes } from "./trainer/TrainerRoutes";
 import "../styles.css";
 import { api } from "../api";
+import { loadUserProfile, saveUserProfile } from "../data/user";
 
 export default function Application() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => loadUserProfile());
   const [role, setRole] = useState("Trainee");
   const [page, setPage] = useState("Landing");
   const [sidebar, setSidebar] = useState(false);
-  useEffect(() => { if (localStorage.getItem("capacity_token")) api.me().then(({ user: currentUser }) => { setUser(currentUser); setRole(currentUser.role[0].toUpperCase() + currentUser.role.slice(1)); setPage("Dashboard"); }).catch(() => localStorage.removeItem("capacity_token")); }, []);
-  const completeAuth = ({ token, user: currentUser }) => { localStorage.setItem("capacity_token", token); setUser(currentUser); setRole(currentUser.role[0].toUpperCase() + currentUser.role.slice(1)); setPage("Dashboard"); };
-  const logout = () => { localStorage.removeItem("capacity_token"); setUser(null); setPage("Landing"); };
-  if (!user || ["Landing", "Login", "Signup", "Role Selection"].includes(page)) return <PublicRoutes page={page} role={role} setPage={setPage} setRole={setRole} onAuthenticated={completeAuth} />;
-  return <AppShell role={role} page={page} setPage={setPage} sidebar={sidebar} setSidebar={setSidebar} user={user} onLogout={logout}><Workspace role={role} page={page} setPage={setPage} user={user} setUser={setUser} /></AppShell>;
+
+  useEffect(() => {
+    if (localStorage.getItem("capacity_token")) {
+      api.me()
+        .then(({ user: currentUser }) => {
+          setUser(currentUser);
+          saveUserProfile(currentUser);
+          setRole(currentUser.role[0].toUpperCase() + currentUser.role.slice(1));
+          setPage("Dashboard");
+        })
+        .catch(() => {
+          localStorage.removeItem("capacity_token");
+        });
+    }
+  }, []);
+
+  const handleUpdateUser = (updatedUser) => {
+    setUser(updatedUser);
+    saveUserProfile(updatedUser);
+  };
+
+  const completeAuth = ({ token, user: currentUser }) => {
+    localStorage.setItem("capacity_token", token);
+    setUser(currentUser);
+    saveUserProfile(currentUser);
+    setRole(currentUser.role[0].toUpperCase() + currentUser.role.slice(1));
+    setPage("Dashboard");
+  };
+
+  const logout = () => {
+    localStorage.removeItem("capacity_token");
+    setUser(null);
+    setPage("Landing");
+  };
+
+  if (!user || ["Landing", "Login", "Signup", "Role Selection"].includes(page)) {
+    return (
+      <PublicRoutes
+        page={page}
+        role={role}
+        setPage={setPage}
+        setRole={setRole}
+        onAuthenticated={completeAuth}
+      />
+    );
+  }
+
+  return (
+    <AppShell
+      role={role}
+      page={page}
+      setPage={setPage}
+      sidebar={sidebar}
+      setSidebar={setSidebar}
+      user={user}
+      onLogout={logout}
+    >
+      <Workspace
+        role={role}
+        page={page}
+        setPage={setPage}
+        user={user}
+        setUser={handleUpdateUser}
+      />
+    </AppShell>
+  );
 }
 
 function Workspace({ role, page, setPage, user, setUser }) {

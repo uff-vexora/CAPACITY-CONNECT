@@ -11,9 +11,11 @@ import { Progress } from "./Progress";
 import { Recommended } from "./RecommendedCourses";
 import { SkillGap } from "./SkillGap";
 import { TraineeDashboard } from "./TraineeDashboard";
+import { Notifications } from "../common/Notifications";
+import { Settings } from "../common/Settings";
 import { loadUserProgress, saveUserProgress, getCourses, INITIAL_COURSES } from "../../data/courses";
 
-export function TraineeRoutes({ page, setPage, user }) {
+export function TraineeRoutes({ page, setPage, user, setUser }) {
   const [userProgress, setUserProgress] = useState(() => loadUserProgress());
   const [selectedCourseId, setSelectedCourseId] = useState(() => {
     return localStorage.getItem("capacity_selected_course") || "leadership-essentials";
@@ -161,7 +163,7 @@ export function TraineeRoutes({ page, setPage, user }) {
       />
     );
 
-  if (page === "My Profile") return <Profile user={user} />;
+  if (page === "My Profile") return <Profile user={user} setUser={setUser} />;
 
   if (page === "Progress") return <Progress courses={courseList} />;
 
@@ -169,6 +171,12 @@ export function TraineeRoutes({ page, setPage, user }) {
 
   if (page === "My Courses")
     return <CoursesList courses={courseList} setPage={setPage} onSelectCourse={handleSelectCourse} />;
+
+  if (page === "Notifications")
+    return <Notifications setPage={setPage} onBack={() => setPage("Dashboard")} />;
+
+  if (page === "Settings")
+    return <Settings onBack={() => setPage("Dashboard")} />;
 
   return <GenericPage page={page} title={page} text="This workspace is ready for your organization’s learning activity." />;
 }
