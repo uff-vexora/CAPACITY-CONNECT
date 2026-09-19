@@ -75,24 +75,14 @@ export function AppShell({
       <aside className={`${sidebar ? "open" : ""} ${collapsed ? "collapsed" : ""}`}>
         <div className="sidebar-header">
           <Brand />
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <button
-              className="sidebar-toggle-btn desktop-only-btn"
-              onClick={toggleCollapsed}
-              title={collapsed ? "Expand sidebar" : "Minimize sidebar"}
-              type="button"
-            >
-              <Icon name={collapsed ? "ChevronRight" : "ChevronLeft"} size={16} />
-            </button>
-            <button
-              className="mobile-sidebar-close"
-              onClick={() => setSidebar(false)}
-              title="Close menu"
-              type="button"
-            >
-              <Icon name="X" size={18} />
-            </button>
-          </div>
+          <button
+            className="mobile-sidebar-close"
+            onClick={() => setSidebar(false)}
+            title="Close menu"
+            type="button"
+          >
+            <Icon name="X" size={18} />
+          </button>
         </div>
 
         {!collapsed && <div className="role-tag">{role.toUpperCase()} WORKSPACE</div>}

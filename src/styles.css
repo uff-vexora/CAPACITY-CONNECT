@@ -32,7 +32,7 @@
 @media(max-width:720px){.desktop-sidebar-toggle{display:none}}
 .app-shell aside{transition:width .22s cubic-bezier(0.4,0,0.2,1),padding .22s ease,left .2s ease}
 .app-shell aside.collapsed{width:70px;padding:22px 10px}
-.app-shell aside.collapsed .sidebar-header{justify-content:center;flex-direction:column;gap:12px}
+.app-shell aside.collapsed .sidebar-header{justify-content:center;gap:0;padding:0}
 .app-shell aside.collapsed .brand span:not(.brand-mark){display:none}
 .app-shell aside.collapsed .role-tag{display:none !important}
 .nav-badge{margin-left:auto;background:var(--rust);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:600;line-height:1.2}
