@@ -152,8 +152,10 @@ export function SkillGap({ setPage, onSelectCourse, onGoToAssessment }) {
 
   // Compute live competencies with targets and dynamic assessment scores
   const competencies = useMemo(() => {
+    const adminTarget = Number(localStorage.getItem("capacity_target_benchmark") || 80);
     return BASE_COMPETENCIES.map((item) => {
-      const target = activeRole.benchmarks[item.name] || 80;
+      const baseTarget = activeRole.benchmarks[item.name] || 80;
+      const target = (selectedRoleId === "associate" && item.name === "Leadership") ? adminTarget : baseTarget;
       // If trainee completed the assessment for this skill, take the higher score
       const testResult = item.assessmentCourseId ? assessmentResults[item.assessmentCourseId] : null;
       const liveCurrent = testResult && testResult.score ? Math.max(item.baseline, testResult.score) : item.baseline;

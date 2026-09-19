@@ -2,23 +2,18 @@ import { useState, useMemo } from "react";
 import { AppIcon as Icon } from "../../components/AppIcon";
 import { PageHead } from "../../components/PageHead";
 import { Metric } from "../../components/Metric";
-import { INITIAL_COURSES } from "../../data/courses";
+import { getAllCatalogCourses, saveCourseStatus } from "../../data/courses";
+import { CourseMediaModal } from "../../components/CourseMediaModal";
 
 export function AdminCourses({ setPage, onSelectCourse }) {
-  const [courses, setCourses] = useState(() => {
-    try {
-      const custom = JSON.parse(localStorage.getItem("capacity_custom_courses") || "[]");
-      return [...INITIAL_COURSES, ...custom];
-    } catch {
-      return INITIAL_COURSES;
-    }
-  });
+  const [courses, setCourses] = useState(() => getAllCatalogCourses());
 
   const [search, setSearch] = useState("");
   const [selectedArea, setSelectedArea] = useState("all");
   const [expandedId, setExpandedId] = useState(null);
-  const [statusMap, setStatusMap] = useState({});
   const [notice, setNotice] = useState("");
+  const [mediaModalCourse, setMediaModalCourse] = useState(null);
+  const [mediaInitialModuleIndex, setMediaInitialModuleIndex] = useState(0);
 
   const areas = useMemo(() => {
     const list = ["all"];
@@ -40,13 +35,13 @@ export function AdminCourses({ setPage, onSelectCourse }) {
   }, [courses, search, selectedArea]);
 
   const toggleStatus = (id) => {
-    setStatusMap((prev) => {
-      const current = prev[id] || "Published";
-      const next = current === "Published" ? "Archived" : "Published";
-      setNotice(`Curriculum status updated to ${next}.`);
-      setTimeout(() => setNotice(""), 3000);
-      return { ...prev, [id]: next };
-    });
+    const target = courses.find((c) => c.id === id);
+    const current = target?.status || "Published";
+    const next = current === "Published" ? "Archived" : "Published";
+    saveCourseStatus(id, next);
+    setCourses(getAllCatalogCourses());
+    setNotice(`Curriculum status updated to ${next} across all workspaces.`);
+    setTimeout(() => setNotice(""), 3000);
   };
 
   const handleExportCSV = () => {
@@ -150,7 +145,7 @@ export function AdminCourses({ setPage, onSelectCourse }) {
       {/* Course Cards */}
       <div style={{ display: "grid", gap: 18 }}>
         {filtered.map((c) => {
-          const status = statusMap[c.id] || "Published";
+          const status = c.status || "Published";
           const isExpanded = expandedId === c.id;
 
           return (
@@ -196,14 +191,26 @@ export function AdminCourses({ setPage, onSelectCourse }) {
 
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   <button
+                    className="button dark"
+                    style={{ height: 34, fontSize: 12, gap: 5 }}
+                    onClick={() => {
+                      setMediaModalCourse(c);
+                      setMediaInitialModuleIndex(0);
+                    }}
+                    title="Open professional media inspector to review videos and audit streams"
+                  >
+                    <Icon name="Video" size={14} /> Review Media
+                  </button>
+
+                  <button
                     className="button outline"
                     style={{ height: 34, fontSize: 12, gap: 5 }}
                     onClick={() => {
                       if (onSelectCourse) onSelectCourse(c.id, "Course Details");
                     }}
-                    title="Preview course syllabus and video player"
+                    title="Preview course syllabus and video player as a learner"
                   >
-                    <Icon name="PlayCircle" size={14} /> Preview Course
+                    <Icon name="PlayCircle" size={14} /> Learner Preview
                   </button>
 
                   <button
@@ -266,6 +273,18 @@ export function AdminCourses({ setPage, onSelectCourse }) {
                               ID: {mod.youtubeId}
                             </span>
                           )}
+                          <button
+                            type="button"
+                            className="button outline"
+                            style={{ height: 26, fontSize: 11, gap: 4, padding: "0 8px" }}
+                            onClick={() => {
+                              setMediaModalCourse(c);
+                              setMediaInitialModuleIndex(idx);
+                            }}
+                            title="Preview this video in media inspector"
+                          >
+                            <Icon name="Play" size={11} /> Play
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -276,6 +295,14 @@ export function AdminCourses({ setPage, onSelectCourse }) {
           );
         })}
       </div>
+
+      {mediaModalCourse && (
+        <CourseMediaModal
+          course={mediaModalCourse}
+          initialModuleIndex={mediaInitialModuleIndex}
+          onClose={() => setMediaModalCourse(null)}
+        />
+      )}
     </>
   );
 }

@@ -2,90 +2,10 @@ import { useState, useMemo } from "react";
 import { AppIcon as Icon } from "../../components/AppIcon";
 import { PageHead } from "../../components/PageHead";
 import { INITIAL_COURSES } from "../../data/courses";
-
-const INITIAL_TRAINEES = [
-  {
-    id: "TR-101",
-    name: "Alex Morgan",
-    email: "alex.morgan@capacityconnect.org",
-    role: "Operations Associate",
-    department: "Operations & Delivery",
-    enrolledCourse: "Leadership Essentials",
-    progress: 75,
-    assessmentScore: 90,
-    status: "Certified",
-    statusTone: "green",
-    joinedDate: "12 May 2026",
-  },
-  {
-    id: "TR-102",
-    name: "Sarah Chen",
-    email: "sarah.chen@capacityconnect.org",
-    role: "Junior Software Engineer",
-    department: "Engineering & Tech",
-    enrolledCourse: "Full-Stack Web Development Foundations",
-    progress: 100,
-    assessmentScore: 94,
-    status: "Certified",
-    statusTone: "green",
-    joinedDate: "04 Jun 2026",
-  },
-  {
-    id: "TR-103",
-    name: "Rahul Sharma",
-    email: "rahul.sharma@capacityconnect.org",
-    role: "Process Coordinator",
-    department: "Operations & Delivery",
-    enrolledCourse: "Communication at Work",
-    progress: 50,
-    assessmentScore: 68,
-    status: "In Progress",
-    statusTone: "orange",
-    joinedDate: "20 Jun 2026",
-  },
-  {
-    id: "TR-104",
-    name: "Maria Garcia",
-    email: "maria.garcia@capacityconnect.org",
-    role: "Data Specialist",
-    department: "Analytics & Strategy",
-    enrolledCourse: "Data Analytics & SQL Mastery",
-    progress: 100,
-    assessmentScore: 96,
-    status: "Certified",
-    statusTone: "green",
-    joinedDate: "15 Jul 2026",
-  },
-  {
-    id: "TR-105",
-    name: "David Kim",
-    email: "david.kim@capacityconnect.org",
-    role: "Agile Project Associate",
-    department: "Project Management",
-    enrolledCourse: "Agile & Scrum Project Management",
-    progress: 25,
-    assessmentScore: 58,
-    status: "Needs Focus",
-    statusTone: "rust",
-    joinedDate: "02 Aug 2026",
-  },
-  {
-    id: "TR-106",
-    name: "Anita Deshmukh",
-    email: "anita.d@capacityconnect.org",
-    role: "Solutions Analyst",
-    department: "Engineering & Tech",
-    enrolledCourse: "Generative AI & Prompt Engineering for Work",
-    progress: 66,
-    assessmentScore: 84,
-    status: "In Progress",
-    statusTone: "orange",
-    joinedDate: "18 Aug 2026",
-  },
-];
+import { loadWorkforce, addWorkforceMember, updateWorkforceMember } from "../../data/workforce";
 
 export function Trainees({ setPage }) {
-  const [trainees, setTrainees] = useState(INITIAL_TRAINEES);
+  const [trainees, setTrainees] = useState(() => loadWorkforce());
   const [search, setSearch] = useState("");
   const [selectedDept, setSelectedDept] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -131,7 +51,8 @@ export function Trainees({ setPage }) {
       joinedDate: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
     };
 
-    setTrainees((prev) => [created, ...prev]);
+    const updated = addWorkforceMember(created);
+    setTrainees(updated);
     setShowEnrollModal(false);
     setNewName("");
     setNewEmail("");
@@ -256,28 +177,28 @@ export function Trainees({ setPage }) {
 
       {/* Trainee Roster Table */}
       <div className="table-wrap" style={{ borderRadius: 10 }}>
-        <table>
+        <table style={{ minWidth: 940 }}>
           <thead>
             <tr>
-              <th>TRAINEE</th>
-              <th>DEPARTMENT &amp; ROLE</th>
-              <th>ENROLLED COURSE</th>
-              <th>PROGRESS</th>
-              <th>ASSESSMENT</th>
-              <th>STATUS</th>
-              <th style={{ textAlign: "right" }}>ACTIONS</th>
+              <th style={{ minWidth: 200, paddingLeft: 18 }}>TRAINEE</th>
+              <th style={{ minWidth: 200 }}>DEPARTMENT &amp; ROLE</th>
+              <th style={{ minWidth: 220 }}>ENROLLED COURSE</th>
+              <th style={{ minWidth: 120, whiteSpace: "nowrap" }}>PROGRESS</th>
+              <th style={{ minWidth: 100, whiteSpace: "nowrap" }}>ASSESSMENT</th>
+              <th style={{ minWidth: 100, whiteSpace: "nowrap" }}>STATUS</th>
+              <th style={{ textAlign: "right", minWidth: 170, paddingRight: 20, whiteSpace: "nowrap" }}>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
             {filteredTrainees.map((t) => (
               <tr key={t.id}>
-                <td>
+                <td style={{ paddingLeft: 18 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#d9a56b", color: "#222", display: "grid", placeItems: "center", font: "600 12px 'DM Mono'", flexShrink: 0 }}>
                       {t.name.split(" ").map((n) => n[0]).join("")}
                     </div>
                     <div>
-                      <b style={{ fontSize: 14 }}>{t.name}</b>
+                      <b style={{ fontSize: 14, display: "block" }}>{t.name}</b>
                       <small style={{ color: "var(--muted)", fontSize: 11 }}>{t.email}</small>
                     </div>
                   </div>
@@ -285,8 +206,8 @@ export function Trainees({ setPage }) {
 
                 <td>
                   <div>
-                    <span style={{ fontSize: 13, color: "var(--ink)" }}>{t.role}</span>
-                    <small style={{ color: "var(--muted)", fontSize: 11 }}>{t.department}</small>
+                    <span style={{ fontSize: 13, color: "var(--ink)", fontWeight: 600, display: "block", whiteSpace: "nowrap" }}>{t.role}</span>
+                    <small style={{ color: "var(--muted)", fontSize: 11, display: "block" }}>{t.department}</small>
                   </div>
                 </td>
 
@@ -294,7 +215,7 @@ export function Trainees({ setPage }) {
                   <span style={{ fontSize: 13, fontWeight: 500 }}>{t.enrolledCourse}</span>
                 </td>
 
-                <td>
+                <td style={{ whiteSpace: "nowrap" }}>
                   <div style={{ width: 110 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 4 }}>
                       <span>{t.progress}%</span>
@@ -305,13 +226,13 @@ export function Trainees({ setPage }) {
                   </div>
                 </td>
 
-                <td>
+                <td style={{ whiteSpace: "nowrap" }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: t.assessmentScore >= 80 ? "var(--green)" : t.assessmentScore >= 60 ? "var(--orange)" : "var(--rust)" }}>
                     {t.assessmentScore > 0 ? `${t.assessmentScore}%` : "Pending"}
                   </span>
                 </td>
 
-                <td>
+                <td style={{ whiteSpace: "nowrap" }}>
                   <span
                     style={{
                       fontSize: 11,
@@ -326,8 +247,8 @@ export function Trainees({ setPage }) {
                   </span>
                 </td>
 
-                <td style={{ textAlign: "right" }}>
-                  <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                <td style={{ textAlign: "right", paddingRight: 20, whiteSpace: "nowrap" }}>
+                  <div style={{ display: "inline-flex", gap: 8, justifyContent: "flex-end", alignItems: "center" }}>
                     <button
                       className="button outline"
                       style={{ height: 30, fontSize: 11, padding: "0 10px", gap: 4 }}
@@ -651,9 +572,14 @@ export function Trainees({ setPage }) {
                   className="button outline"
                   style={{ height: 32, fontSize: 12, gap: 5 }}
                   onClick={() => {
-                    setTrainees((prev) =>
-                      prev.map((t) => (t.id === selectedTrainee.id ? { ...t, status: "Certified", statusTone: "green", progress: 100, assessmentScore: Math.max(t.assessmentScore, 88) } : t))
-                    );
+                    const updated = updateWorkforceMember(selectedTrainee.id, {
+                      status: "Certified",
+                      statusTone: "green",
+                      progress: 100,
+                      assessmentScore: Math.max(selectedTrainee.assessmentScore, 88),
+                      competency: `${Math.max(selectedTrainee.assessmentScore, 88)}%`,
+                    });
+                    setTrainees(updated);
                     setSelectedTrainee((prev) => ({ ...prev, status: "Certified", statusTone: "green", progress: 100, assessmentScore: Math.max(prev.assessmentScore, 88) }));
                     setActionNotice(`Endorsed official certificate for ${selectedTrainee.name}!`);
                     setTimeout(() => setActionNotice(""), 3500);

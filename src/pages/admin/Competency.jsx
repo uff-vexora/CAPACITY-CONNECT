@@ -21,7 +21,15 @@ const DOMAINS_DATA = [
 ];
 
 export function Competency() {
-  const [targetBenchmark, setTargetBenchmark] = useState(80);
+  const [targetBenchmark, setTargetBenchmark] = useState(() => {
+    try {
+      const saved = localStorage.getItem("capacity_target_benchmark");
+      if (saved) return Number(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return 80;
+  });
   const [selectedDept, setSelectedDept] = useState("all");
   const [notice, setNotice] = useState("");
 
@@ -91,7 +99,12 @@ export function Competency() {
               className={`pill ${targetBenchmark === bm ? "selected" : ""}`}
               onClick={() => {
                 setTargetBenchmark(bm);
-                setNotice(`Calibrated organization benchmark target to ${bm}%.`);
+                try {
+                  localStorage.setItem("capacity_target_benchmark", bm);
+                } catch (e) {
+                  console.error(e);
+                }
+                setNotice(`Calibrated organization benchmark target to ${bm}% across all workspaces.`);
                 setTimeout(() => setNotice(""), 3000);
               }}
               style={{

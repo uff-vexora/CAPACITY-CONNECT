@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { AppIcon as Icon } from "../../components/AppIcon";
 import { PageHead } from "../../components/PageHead";
 import { Metric } from "../../components/Metric";
+import { loadTrainers } from "../../data/trainers";
 
 const INITIAL_NEEDS = [
   {
@@ -13,7 +14,7 @@ const INITIAL_NEEDS = [
     urgency: "High",
     recommendedTrack: "Data Analytics & SQL Mastery",
     leadTrainer: "Vikram Singh",
-    budget: "$48,000",
+    budget: "₹48,000",
     status: "Planning Required",
   },
   {
@@ -25,7 +26,7 @@ const INITIAL_NEEDS = [
     urgency: "High",
     recommendedTrack: "Leadership Essentials",
     leadTrainer: "Anita Verma",
-    budget: "$42,000",
+    budget: "₹42,000",
     status: "Cohort Launch Ready",
   },
   {
@@ -37,7 +38,7 @@ const INITIAL_NEEDS = [
     urgency: "Medium",
     recommendedTrack: "Communication at Work",
     leadTrainer: "Rohan Mehta",
-    budget: "$30,000",
+    budget: "₹30,000",
     status: "Active Pathway",
   },
   {
@@ -49,7 +50,7 @@ const INITIAL_NEEDS = [
     urgency: "Medium",
     recommendedTrack: "Operational Safety Readiness",
     leadTrainer: "Priya Nair",
-    budget: "$25,000",
+    budget: "₹25,000",
     status: "Active Pathway",
   },
   {
@@ -61,7 +62,7 @@ const INITIAL_NEEDS = [
     urgency: "High",
     recommendedTrack: "Generative AI & Prompt Engineering for Work",
     leadTrainer: "AI Research Lab",
-    budget: "$35,000",
+    budget: "₹35,000",
     status: "Planning Required",
   },
 ];
@@ -157,7 +158,7 @@ export function TrainingNeeds({ setPage }) {
       <div className="metric-grid" style={{ marginBottom: 28 }}>
         <Metric value="5" label="Identified Gap Areas" detail="3 High urgency" />
         <Metric value="386" label="Impacted Employees" detail="31% of workforce" />
-        <Metric value="$180,000" label="Allocated Budget" detail="Fiscal Year 2026" />
+        <Metric value="₹1,80,000" label="Allocated Budget" detail="Fiscal Year 2026" />
         <Metric value="+24%" label="Target Capability Gain" detail="Post-intervention goal" />
       </div>
 
@@ -328,12 +329,9 @@ export function TrainingNeeds({ setPage }) {
                   onChange={(e) => setAssignedTrainer(e.target.value)}
                   style={{ width: "100%", padding: "9px 12px", border: "1px solid var(--line)", borderRadius: 6, background: "#faf8f2", fontSize: 13 }}
                 >
-                  <option value="Anita Verma">Anita Verma (Leadership Specialist)</option>
-                  <option value="Rohan Mehta">Rohan Mehta (Communication Coach)</option>
-                  <option value="Vikram Singh">Vikram Singh (Data &amp; Process Lead)</option>
-                  <option value="Priya Nair">Priya Nair (Safety Director)</option>
-                  <option value="Dev Academy">Dev Academy Faculty</option>
-                  <option value="AI Research Lab">AI Research Lab</option>
+                  {loadTrainers().map((t) => (
+                    <option key={t.id} value={t.name}>{t.name} ({t.domain})</option>
+                  ))}
                 </select>
               </div>
 

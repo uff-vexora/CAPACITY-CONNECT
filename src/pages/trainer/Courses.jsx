@@ -1,24 +1,19 @@
 import { useState, useMemo } from "react";
 import { AppIcon as Icon } from "../../components/AppIcon";
 import { PageHead } from "../../components/PageHead";
-import { INITIAL_COURSES } from "../../data/courses";
+import { getAllCatalogCourses, saveCourseStatus } from "../../data/courses";
+import { CourseMediaModal } from "../../components/CourseMediaModal";
 
 export function Courses({ setPage, onSelectCourse }) {
-  // Load initial courses plus any custom courses created in localStorage
-  const [courseList, setCourseList] = useState(() => {
-    try {
-      const custom = JSON.parse(localStorage.getItem("capacity_custom_courses") || "[]");
-      return [...INITIAL_COURSES, ...custom];
-    } catch {
-      return INITIAL_COURSES;
-    }
-  });
+  // Load full catalog with custom courses and shared statuses
+  const [courseList, setCourseList] = useState(() => getAllCatalogCourses());
 
   const [search, setSearch] = useState("");
   const [selectedArea, setSelectedArea] = useState("all");
   const [expandedCourseId, setExpandedCourseId] = useState(null);
-  const [statusMap, setStatusMap] = useState({});
   const [notice, setNotice] = useState("");
+  const [mediaModalCourse, setMediaModalCourse] = useState(null);
+  const [mediaInitialModuleIndex, setMediaInitialModuleIndex] = useState(0);
 
   const areas = useMemo(() => {
     const set = new Set(courseList.map((c) => c.area));
@@ -34,13 +29,13 @@ export function Courses({ setPage, onSelectCourse }) {
   }, [courseList, search, selectedArea]);
 
   const toggleStatus = (courseId) => {
-    setStatusMap((prev) => {
-      const current = prev[courseId] ?? "Published";
-      const next = current === "Published" ? "Draft" : "Published";
-      setNotice(`Course marked as ${next}.`);
-      setTimeout(() => setNotice(""), 3000);
-      return { ...prev, [courseId]: next };
-    });
+    const currentCourse = courseList.find((c) => c.id === courseId);
+    const current = currentCourse?.status || "Published";
+    const next = current === "Published" ? "Draft" : "Published";
+    saveCourseStatus(courseId, next);
+    setCourseList(getAllCatalogCourses());
+    setNotice(`Course marked as ${next} across all workspaces.`);
+    setTimeout(() => setNotice(""), 3000);
   };
 
   return (
@@ -109,7 +104,7 @@ export function Courses({ setPage, onSelectCourse }) {
       {/* Courses Cards */}
       <div style={{ display: "grid", gap: 18 }}>
         {filtered.map((course) => {
-          const status = statusMap[course.id] || "Published";
+          const status = course.status || "Published";
           const isExpanded = expandedCourseId === course.id;
           const isPublished = status === "Published";
 
@@ -156,6 +151,18 @@ export function Courses({ setPage, onSelectCourse }) {
 
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   <button
+                    className="button dark"
+                    style={{ height: 34, fontSize: 12, gap: 5 }}
+                    onClick={() => {
+                      setMediaModalCourse(course);
+                      setMediaInitialModuleIndex(0);
+                    }}
+                    title="Open professional video inspector and media quality review studio"
+                  >
+                    <Icon name="Video" size={14} /> Review Media
+                  </button>
+
+                  <button
                     className="button outline"
                     style={{ height: 34, fontSize: 12, gap: 5 }}
                     onClick={() => {
@@ -165,7 +172,7 @@ export function Courses({ setPage, onSelectCourse }) {
                     }}
                     title="Preview course video player and lessons as a trainee"
                   >
-                    <Icon name="PlayCircle" size={14} /> Preview Course
+                    <Icon name="PlayCircle" size={14} /> Learner Preview
                   </button>
 
                   <button
@@ -187,7 +194,7 @@ export function Courses({ setPage, onSelectCourse }) {
                   </button>
 
                   <button
-                    className="button dark"
+                    className="button outline"
                     style={{ height: 34, fontSize: 12, gap: 5 }}
                     onClick={() => setPage && setPage("Assessments")}
                   >
@@ -238,6 +245,18 @@ export function Courses({ setPage, onSelectCourse }) {
                               YouTube: {mod.youtubeId}
                             </span>
                           )}
+                          <button
+                            type="button"
+                            className="button outline"
+                            style={{ height: 26, fontSize: 11, gap: 4, padding: "0 8px" }}
+                            onClick={() => {
+                              setMediaModalCourse(course);
+                              setMediaInitialModuleIndex(idx);
+                            }}
+                            title="Preview this video in media inspector"
+                          >
+                            <Icon name="Play" size={11} /> Play
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -248,6 +267,14 @@ export function Courses({ setPage, onSelectCourse }) {
           );
         })}
       </div>
+
+      {mediaModalCourse && (
+        <CourseMediaModal
+          course={mediaModalCourse}
+          initialModuleIndex={mediaInitialModuleIndex}
+          onClose={() => setMediaModalCourse(null)}
+        />
+      )}
     </>
   );
 }

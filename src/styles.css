@@ -323,6 +323,80 @@
   }
 }
 
+/* ==========================================================================
+   Universal Table Responsiveness & Layout Architecture
+   ========================================================================== */
+.table-wrap {
+  background: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 10px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  position: relative !important;
+  width: 100% !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+}
+
+.table-wrap::-webkit-scrollbar {
+  height: 6px !important;
+}
+
+.table-wrap::-webkit-scrollbar-track {
+  background: #faf8f2 !important;
+  border-radius: 4px !important;
+}
+
+.table-wrap::-webkit-scrollbar-thumb {
+  background: #d8d5cb !important;
+  border-radius: 4px !important;
+}
+
+.table-wrap::-webkit-scrollbar-thumb:hover {
+  background: #b5b2a5 !important;
+}
+
+.table-wrap table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  text-align: left !important;
+  font-size: 13px !important;
+}
+
+.table-wrap th {
+  font: 10px 'DM Mono' !important;
+  letter-spacing: .08em !important;
+  color: var(--muted) !important;
+  font-weight: 600 !important;
+  padding: 13px 14px !important;
+  background: #faf8f2 !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+
+.table-wrap td {
+  padding: 13px 14px !important;
+  border-bottom: 1px solid var(--line) !important;
+  vertical-align: middle !important;
+}
+
+.table-wrap tr:hover td {
+  background: #fdfcf9;
+}
+
+.table-wrap tr:last-child td {
+  border-bottom: none !important;
+}
+
+@media (max-width: 768px) {
+  .table-wrap {
+    margin-left: -14px !important;
+    margin-right: -14px !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+}
+
 
 
 

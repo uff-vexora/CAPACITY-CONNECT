@@ -2,98 +2,10 @@ import { useState, useMemo } from "react";
 import { AppIcon as Icon } from "../../components/AppIcon";
 import { PageHead } from "../../components/PageHead";
 import { Metric } from "../../components/Metric";
-
-const DEFAULT_TRAINERS = [
-  {
-    id: "INST-01",
-    name: "Anita Verma",
-    email: "anita.verma@capacityconnect.org",
-    role: "Senior Capability Architect & Lead Facilitator",
-    domain: "Leadership & Decision-Making",
-    activeCohorts: 4,
-    traineesMentored: 218,
-    rating: "4.92",
-    status: "Active",
-    coursesTaught: ["Leadership Essentials", "Advanced Team Management"],
-    joinedDate: "15 Jan 2024",
-  },
-  {
-    id: "INST-02",
-    name: "Rohan Mehta",
-    email: "rohan.mehta@capacityconnect.org",
-    role: "Executive Communication & Alignment Coach",
-    domain: "Workplace Communication",
-    activeCohorts: 3,
-    traineesMentored: 185,
-    rating: "4.88",
-    status: "Active",
-    coursesTaught: ["Communication at Work"],
-    joinedDate: "02 Mar 2024",
-  },
-  {
-    id: "INST-03",
-    name: "Vikram Singh",
-    email: "vikram.singh@capacityconnect.org",
-    role: "Senior Lean Six Sigma & Agile Master",
-    domain: "Process Optimization & Agile",
-    activeCohorts: 3,
-    traineesMentored: 160,
-    rating: "4.91",
-    status: "Active",
-    coursesTaught: ["Agile & Scrum Project Management"],
-    joinedDate: "10 Jun 2024",
-  },
-  {
-    id: "INST-04",
-    name: "Priya Nair",
-    email: "priya.nair@capacityconnect.org",
-    role: "Director of Safety Operations & Audits",
-    domain: "Operational Safety & Compliance",
-    activeCohorts: 2,
-    traineesMentored: 240,
-    rating: "4.95",
-    status: "Active",
-    coursesTaught: ["Operational Safety Readiness"],
-    joinedDate: "18 Aug 2023",
-  },
-  {
-    id: "INST-05",
-    name: "Dev Academy Faculty",
-    email: "dev.academy@capacityconnect.org",
-    role: "Technical Engineering Faculty Lead",
-    domain: "Software Engineering & Cloud",
-    activeCohorts: 2,
-    traineesMentored: 210,
-    rating: "4.86",
-    status: "Active",
-    coursesTaught: ["Full-Stack Web Development Foundations"],
-    joinedDate: "12 Nov 2024",
-  },
-  {
-    id: "INST-06",
-    name: "AI Research Lab",
-    email: "ai.lab@capacityconnect.org",
-    role: "Applied AI & Automation Research Fellow",
-    domain: "Generative AI & Automation",
-    activeCohorts: 2,
-    traineesMentored: 235,
-    rating: "4.93",
-    status: "Active",
-    coursesTaught: ["Generative AI & Prompt Engineering for Work"],
-    joinedDate: "05 Feb 2025",
-  },
-];
+import { loadTrainers, addTrainer } from "../../data/trainers";
 
 export function Trainers({ setPage }) {
-  const [trainers, setTrainers] = useState(() => {
-    try {
-      const saved = localStorage.getItem("capacity_admin_trainers");
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error(e);
-    }
-    return DEFAULT_TRAINERS;
-  });
+  const [trainers, setTrainers] = useState(() => loadTrainers());
 
   const [search, setSearch] = useState("");
   const [selectedDomain, setSelectedDomain] = useState("all");
@@ -146,13 +58,8 @@ export function Trainers({ setPage }) {
       joinedDate: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
     };
 
-    const updated = [created, ...trainers];
+    const updated = addTrainer(created);
     setTrainers(updated);
-    try {
-      localStorage.setItem("capacity_admin_trainers", JSON.stringify(updated));
-    } catch (err) {
-      console.error(err);
-    }
 
     setShowAddModal(false);
     setNewName("");
@@ -258,28 +165,28 @@ export function Trainers({ setPage }) {
 
       {/* Trainers Table */}
       <div className="table-wrap" style={{ borderRadius: 10 }}>
-        <table>
+        <table style={{ minWidth: 940 }}>
           <thead>
             <tr>
-              <th>INSTRUCTOR</th>
-              <th>SPECIALIZATION &amp; ROLE</th>
-              <th>COHORTS</th>
-              <th>TRAINEES</th>
-              <th>RATING</th>
-              <th>STATUS</th>
-              <th style={{ textAlign: "right" }}>ACTIONS</th>
+              <th style={{ minWidth: 200, paddingLeft: 18 }}>INSTRUCTOR</th>
+              <th style={{ minWidth: 240 }}>SPECIALIZATION &amp; ROLE</th>
+              <th style={{ minWidth: 90, whiteSpace: "nowrap" }}>COHORTS</th>
+              <th style={{ minWidth: 80, whiteSpace: "nowrap" }}>TRAINEES</th>
+              <th style={{ minWidth: 85, whiteSpace: "nowrap" }}>RATING</th>
+              <th style={{ minWidth: 90, whiteSpace: "nowrap" }}>STATUS</th>
+              <th style={{ textAlign: "right", minWidth: 190, paddingRight: 20, whiteSpace: "nowrap" }}>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((t) => (
               <tr key={t.id}>
-                <td>
+                <td style={{ paddingLeft: 18 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#d98045", color: "#fff", display: "grid", placeItems: "center", font: "700 13px 'DM Mono'", flexShrink: 0 }}>
                       {t.name.split(" ").map((n) => n[0]).join("")}
                     </div>
                     <div>
-                      <b style={{ fontSize: 14 }}>{t.name}</b>
+                      <b style={{ fontSize: 14, display: "block" }}>{t.name}</b>
                       <small style={{ color: "var(--muted)", fontSize: 11 }}>{t.email}</small>
                     </div>
                   </div>
@@ -287,33 +194,33 @@ export function Trainers({ setPage }) {
 
                 <td>
                   <div>
-                    <span style={{ fontSize: 13, color: "var(--ink)", fontWeight: 500 }}>{t.domain}</span>
-                    <small style={{ color: "var(--muted)", fontSize: 11 }}>{t.role}</small>
+                    <span style={{ fontSize: 13, color: "var(--ink)", fontWeight: 600, display: "block", whiteSpace: "nowrap" }}>{t.domain}</span>
+                    <small style={{ color: "var(--muted)", fontSize: 11, display: "block" }}>{t.role}</small>
                   </div>
                 </td>
 
-                <td>
+                <td style={{ whiteSpace: "nowrap" }}>
                   <span style={{ fontSize: 13, font: "600 12px 'DM Mono'" }}>{t.activeCohorts} Active</span>
                 </td>
 
-                <td>
+                <td style={{ whiteSpace: "nowrap" }}>
                   <span style={{ fontSize: 13 }}>{t.traineesMentored}</span>
                 </td>
 
-                <td>
+                <td style={{ whiteSpace: "nowrap" }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: "#b8702b" }}>
                     ★ {t.rating}
                   </span>
                 </td>
 
-                <td>
-                  <span className="pill" style={{ background: "#edf7ef", color: "var(--green)", fontWeight: 600, fontSize: 11, padding: "2px 8px" }}>
+                <td style={{ whiteSpace: "nowrap" }}>
+                  <span className="pill" style={{ background: "#edf7ef", color: "var(--green)", fontWeight: 600, fontSize: 11, padding: "3px 8px" }}>
                     {t.status}
                   </span>
                 </td>
 
-                <td style={{ textAlign: "right" }}>
-                  <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                <td style={{ textAlign: "right", paddingRight: 20, whiteSpace: "nowrap" }}>
+                  <div style={{ display: "inline-flex", gap: 8, justifyContent: "flex-end", alignItems: "center" }}>
                     <button
                       className="button outline"
                       style={{ height: 30, fontSize: 11, padding: "0 10px", gap: 4 }}

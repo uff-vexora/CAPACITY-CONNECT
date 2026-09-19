@@ -428,6 +428,65 @@ export function loadUserProgress() {
   return merged;
 }
 
+const CUSTOM_COURSES_KEY = "capacity_custom_courses";
+const COURSE_STATUS_KEY = "capacity_courses_status";
+
+export function loadCustomCourses() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_COURSES_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.error(e);
+  }
+  return [];
+}
+
+export function saveCustomCourses(courses) {
+  try {
+    localStorage.setItem(CUSTOM_COURSES_KEY, JSON.stringify(courses));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+export function addCustomCourse(course) {
+  const current = loadCustomCourses();
+  const updated = [course, ...current];
+  saveCustomCourses(updated);
+  return updated;
+}
+
+export function loadCourseStatuses() {
+  try {
+    const raw = localStorage.getItem(COURSE_STATUS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.error(e);
+  }
+  return {};
+}
+
+export function saveCourseStatus(courseId, status) {
+  const statuses = loadCourseStatuses();
+  statuses[courseId] = status;
+  try {
+    localStorage.setItem(COURSE_STATUS_KEY, JSON.stringify(statuses));
+  } catch (e) {
+    console.error(e);
+  }
+  return statuses;
+}
+
+export function getAllCatalogCourses() {
+  const custom = loadCustomCourses();
+  const statuses = loadCourseStatuses();
+  const combined = [...INITIAL_COURSES, ...custom];
+  return combined.map((c) => ({
+    ...c,
+    status: statuses[c.id] || "Published",
+  }));
+}
+
 export function saveUserProgress(progress) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
@@ -437,14 +496,18 @@ export function saveUserProgress(progress) {
 }
 
 export function getCourses(userProgress = loadUserProgress()) {
-  return INITIAL_COURSES.map((course) => {
+  const allCatalog = getAllCatalogCourses();
+  // Filter out archived courses for standard learning
+  const activeCatalog = allCatalog.filter((c) => c.status !== "Archived");
+
+  return activeCatalog.map((course) => {
     const p = userProgress[course.id] || {
       enrolled: true,
       completedModules: course.defaultCompleted || [],
       percent: 0,
       notes: {},
     };
-    const totalModules = course.modules.length;
+    const totalModules = (course.modules || []).length;
     const completedCount = (p.completedModules || []).length;
     const percent = totalModules > 0 ? Math.round((completedCount / totalModules) * 100) : 0;
 

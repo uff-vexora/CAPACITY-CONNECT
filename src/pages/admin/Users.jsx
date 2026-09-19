@@ -2,116 +2,10 @@ import { useState, useMemo } from "react";
 import { AppIcon as Icon } from "../../components/AppIcon";
 import { PageHead } from "../../components/PageHead";
 import { Metric } from "../../components/Metric";
-
-const INITIAL_EMPLOYEES = [
-  {
-    id: "EMP-101",
-    name: "Rahul Sharma",
-    email: "rahul.s@capacityconnect.org",
-    department: "Regional Operations",
-    role: "Operations Associate",
-    competency: "72%",
-    status: "In Progress",
-    enrolledCourse: "Communication at Work",
-    joinedDate: "12 May 2026",
-    manager: "Anita Verma",
-  },
-  {
-    id: "EMP-102",
-    name: "Priya Menon",
-    email: "priya.m@capacityconnect.org",
-    department: "Customer Success",
-    role: "Client Team Lead",
-    competency: "78%",
-    status: "On Track",
-    enrolledCourse: "Leadership Essentials",
-    joinedDate: "04 Jun 2026",
-    manager: "Rohan Mehta",
-  },
-  {
-    id: "EMP-103",
-    name: "Arun Patel",
-    email: "arun.p@capacityconnect.org",
-    department: "Manufacturing",
-    role: "Process Engineer",
-    competency: "66%",
-    status: "Needs Training",
-    enrolledCourse: "Operational Safety Readiness",
-    joinedDate: "20 Jun 2026",
-    manager: "Priya Nair",
-  },
-  {
-    id: "EMP-104",
-    name: "Neha Singh",
-    email: "neha.s@capacityconnect.org",
-    department: "Finance & Risk",
-    role: "Senior Financial Analyst",
-    competency: "82%",
-    status: "On Track",
-    enrolledCourse: "Data Analytics & SQL Mastery",
-    joinedDate: "15 Jul 2026",
-    manager: "Vikram Singh",
-  },
-  {
-    id: "EMP-105",
-    name: "Sarah Chen",
-    email: "sarah.c@capacityconnect.org",
-    department: "Engineering",
-    role: "Junior Software Engineer",
-    competency: "94%",
-    status: "Certified",
-    enrolledCourse: "Full-Stack Web Development Foundations",
-    joinedDate: "02 Aug 2026",
-    manager: "Dev Academy",
-  },
-  {
-    id: "EMP-106",
-    name: "Alex Morgan",
-    email: "alex.m@capacityconnect.org",
-    department: "Regional Operations",
-    role: "Operations Lead",
-    competency: "90%",
-    status: "Certified",
-    enrolledCourse: "Leadership Essentials",
-    joinedDate: "18 Aug 2026",
-    manager: "Anita Verma",
-  },
-  {
-    id: "EMP-107",
-    name: "Maria Garcia",
-    email: "maria.g@capacityconnect.org",
-    department: "Analytics & Strategy",
-    role: "Data Specialist",
-    competency: "96%",
-    status: "Certified",
-    enrolledCourse: "Data Analytics & SQL Mastery",
-    joinedDate: "01 Sep 2026",
-    manager: "Vikram Singh",
-  },
-  {
-    id: "EMP-108",
-    name: "David Kim",
-    email: "david.k@capacityconnect.org",
-    department: "Project Management",
-    role: "Agile Project Associate",
-    competency: "58%",
-    status: "Needs Training",
-    enrolledCourse: "Agile & Scrum Project Management",
-    joinedDate: "08 Sep 2026",
-    manager: "Vikram Singh",
-  },
-];
+import { loadWorkforce, addWorkforceMember } from "../../data/workforce";
 
 export function Users() {
-  const [employees, setEmployees] = useState(() => {
-    try {
-      const saved = localStorage.getItem("capacity_admin_users");
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error(e);
-    }
-    return INITIAL_EMPLOYEES;
-  });
+  const [employees, setEmployees] = useState(() => loadWorkforce());
 
   const [search, setSearch] = useState("");
   const [selectedDept, setSelectedDept] = useState("all");
@@ -162,13 +56,8 @@ export function Users() {
       manager: "Executive Leadership",
     };
 
-    const updated = [created, ...employees];
+    const updated = addWorkforceMember(created);
     setEmployees(updated);
-    try {
-      localStorage.setItem("capacity_admin_users", JSON.stringify(updated));
-    } catch (err) {
-      console.error(err);
-    }
 
     setShowAddModal(false);
     setNewName("");
@@ -277,27 +166,27 @@ export function Users() {
 
       {/* Employees Table */}
       <div className="table-wrap" style={{ borderRadius: 10 }}>
-        <table>
+        <table style={{ minWidth: 920 }}>
           <thead>
             <tr>
-              <th>EMPLOYEE</th>
-              <th>DEPARTMENT &amp; ROLE</th>
-              <th>ENROLLED PATHWAY</th>
-              <th>COMPETENCY</th>
-              <th>TRAINING STATUS</th>
-              <th style={{ textAlign: "right" }}>ACTIONS</th>
+              <th style={{ minWidth: 200, paddingLeft: 18 }}>EMPLOYEE</th>
+              <th style={{ minWidth: 220 }}>DEPARTMENT &amp; ROLE</th>
+              <th style={{ minWidth: 220 }}>ENROLLED PATHWAY</th>
+              <th style={{ minWidth: 100, whiteSpace: "nowrap" }}>COMPETENCY</th>
+              <th style={{ minWidth: 120, whiteSpace: "nowrap" }}>TRAINING STATUS</th>
+              <th style={{ textAlign: "right", minWidth: 110, paddingRight: 20, whiteSpace: "nowrap" }}>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((p) => (
               <tr key={p.id}>
-                <td>
+                <td style={{ paddingLeft: 18 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#e5dccb", color: "#222", display: "grid", placeItems: "center", font: "600 12px 'DM Mono'", flexShrink: 0 }}>
                       {p.name.split(" ").map((n) => n[0]).join("")}
                     </div>
                     <div>
-                      <b style={{ fontSize: 14 }}>{p.name}</b>
+                      <b style={{ fontSize: 14, display: "block" }}>{p.name}</b>
                       <small style={{ color: "var(--muted)", fontSize: 11 }}>{p.email}</small>
                     </div>
                   </div>
@@ -305,22 +194,22 @@ export function Users() {
 
                 <td>
                   <div>
-                    <span style={{ fontSize: 13, color: "var(--ink)", fontWeight: 500 }}>{p.role}</span>
-                    <small style={{ color: "var(--muted)", fontSize: 11 }}>{p.department}</small>
+                    <span style={{ fontSize: 13, color: "var(--ink)", fontWeight: 600, display: "block", whiteSpace: "nowrap" }}>{p.role}</span>
+                    <small style={{ color: "var(--muted)", fontSize: 11, display: "block" }}>{p.department}</small>
                   </div>
                 </td>
 
                 <td>
-                  <span style={{ fontSize: 13 }}>{p.enrolledCourse}</span>
+                  <span style={{ fontSize: 13, fontWeight: 500 }}>{p.enrolledCourse}</span>
                 </td>
 
-                <td>
+                <td style={{ whiteSpace: "nowrap" }}>
                   <strong style={{ fontSize: 14, color: parseInt(p.competency) >= 80 ? "var(--green)" : parseInt(p.competency) >= 70 ? "var(--orange)" : "var(--rust)" }}>
                     {p.competency}
                   </strong>
                 </td>
 
-                <td>
+                <td style={{ whiteSpace: "nowrap" }}>
                   <span
                     className={
                       "status " +
@@ -329,7 +218,7 @@ export function Users() {
                     style={{
                       fontSize: 11,
                       fontWeight: 600,
-                      padding: "2px 8px",
+                      padding: "3px 8px",
                       borderRadius: 4,
                       background: p.status === "Certified" ? "#edf7ef" : p.status === "Needs Training" ? "#fdeae3" : "#fdf2e9",
                       color: p.status === "Certified" ? "#2d5e36" : p.status === "Needs Training" ? "#9e3d1c" : "#b85d3b",
@@ -339,10 +228,10 @@ export function Users() {
                   </span>
                 </td>
 
-                <td style={{ textAlign: "right" }}>
+                <td style={{ textAlign: "right", paddingRight: 20, whiteSpace: "nowrap" }}>
                   <button
                     className="button outline"
-                    style={{ height: 30, fontSize: 11, padding: "0 10px", gap: 4 }}
+                    style={{ height: 30, fontSize: 11, padding: "0 12px", gap: 4 }}
                     onClick={() => setSelectedEmployee(p)}
                   >
                     <Icon name="Eye" size={12} /> Inspect
