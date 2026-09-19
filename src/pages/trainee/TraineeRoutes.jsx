@@ -167,7 +167,8 @@ export function TraineeRoutes({ page, setPage, user, setUser }) {
 
   if (page === "Progress") return <Progress courses={courseList} />;
 
-  if (page === "Certificates") return <Certificates />;
+  if (page === "Certificates")
+    return <Certificates courses={courseList} user={user} setPage={setPage} />;
 
   if (page === "My Courses")
     return <CoursesList courses={courseList} setPage={setPage} onSelectCourse={handleSelectCourse} />;
