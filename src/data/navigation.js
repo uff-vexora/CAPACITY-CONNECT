@@ -19,6 +19,7 @@ export const trainerNav = [
   ["ClipboardCheck", "Assessments"],
   ["ChartNoAxesCombined", "Performance"],
   ["FolderUp", "Resources"],
+  ["Calendar", "Live Sessions"],
   ["Bell", "Notifications"],
   ["Settings", "Settings"],
 ];

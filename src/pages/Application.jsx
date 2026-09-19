@@ -83,6 +83,6 @@ export default function Application() {
 
 function Workspace({ role, page, setPage, user, setUser }) {
   if (role === "Trainee") return <TraineeRoutes page={page} setPage={setPage} user={user} setUser={setUser} />;
-  if (role === "Trainer") return <TrainerRoutes page={page} setPage={setPage} user={user} />;
-  return <AdminRoutes page={page} />;
+  if (role === "Trainer") return <TrainerRoutes page={page} setPage={setPage} user={user} setUser={setUser} />;
+  return <AdminRoutes page={page} setPage={setPage} user={user} setUser={setUser} />;
 }

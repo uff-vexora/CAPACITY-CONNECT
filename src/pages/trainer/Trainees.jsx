@@ -90,7 +90,9 @@ export function Trainees({ setPage }) {
   const [selectedDept, setSelectedDept] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [showEnrollModal, setShowEnrollModal] = useState(false);
+  const [selectedTrainee, setSelectedTrainee] = useState(null);
   const [actionNotice, setActionNotice] = useState("");
+  const [traineeFeedback, setTraineeFeedback] = useState("");
 
   // New trainee form
   const [newName, setNewName] = useState("");
@@ -325,16 +327,29 @@ export function Trainees({ setPage }) {
                 </td>
 
                 <td style={{ textAlign: "right" }}>
-                  <button
-                    className="button outline"
-                    style={{ height: 30, fontSize: 11, padding: "0 10px", gap: 4 }}
-                    onClick={() => {
-                      setActionNotice(`Reminded ${t.name} regarding ${t.enrolledCourse} assignments.`);
-                      setTimeout(() => setActionNotice(""), 3000);
-                    }}
-                  >
-                    <Icon name="Send" size={12} /> Ping
-                  </button>
+                  <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                    <button
+                      className="button outline"
+                      style={{ height: 30, fontSize: 11, padding: "0 10px", gap: 4 }}
+                      onClick={() => {
+                        setSelectedTrainee(t);
+                        setTraineeFeedback("");
+                      }}
+                      title="Inspect trainee profile, module progress, and grade"
+                    >
+                      <Icon name="Eye" size={12} /> Inspect
+                    </button>
+                    <button
+                      className="button outline"
+                      style={{ height: 30, fontSize: 11, padding: "0 10px", gap: 4 }}
+                      onClick={() => {
+                        setActionNotice(`Reminded ${t.name} regarding ${t.enrolledCourse} assignments.`);
+                        setTimeout(() => setActionNotice(""), 3000);
+                      }}
+                    >
+                      <Icon name="Send" size={12} /> Ping
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -452,6 +467,236 @@ export function Trainees({ setPage }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Inspect Trainee Details Modal */}
+      {selectedTrainee && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(18,20,16,0.75)",
+            backdropFilter: "blur(3px)",
+            zIndex: 99999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20,
+          }}
+          onClick={() => setSelectedTrainee(null)}
+        >
+          <div
+            style={{
+              width: "min(620px, 100%)",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              background: "var(--paper)",
+              border: "1px solid var(--line)",
+              borderRadius: 10,
+              padding: 28,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+              <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                <div
+                  style={{
+                    width: 46,
+                    height: 46,
+                    borderRadius: "50%",
+                    background: "#d9a56b",
+                    color: "#222",
+                    display: "grid",
+                    placeItems: "center",
+                    font: "700 15px 'DM Mono'",
+                    flexShrink: 0,
+                  }}
+                >
+                  {selectedTrainee.name.split(" ").map((n) => n[0]).join("")}
+                </div>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <h3 style={{ margin: 0, fontSize: "1.35rem", color: "var(--ink)" }}>{selectedTrainee.name}</h3>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        padding: "2px 8px",
+                        borderRadius: 4,
+                        background: selectedTrainee.statusTone === "green" ? "#edf7ef" : selectedTrainee.statusTone === "orange" ? "#fdf2e9" : "#fdeae3",
+                        color: selectedTrainee.statusTone === "green" ? "#2d5e36" : selectedTrainee.statusTone === "orange" ? "#b85d3b" : "#9e3d1c",
+                      }}
+                    >
+                      {selectedTrainee.status}
+                    </span>
+                  </div>
+                  <small style={{ color: "var(--muted)", fontSize: 12 }}>
+                    ID: <b>{selectedTrainee.id}</b> · {selectedTrainee.email}
+                  </small>
+                </div>
+              </div>
+
+              <button onClick={() => setSelectedTrainee(null)} style={{ cursor: "pointer", color: "var(--muted)" }}>
+                <Icon name="X" size={20} />
+              </button>
+            </div>
+
+            {/* Profile Meta Cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 20 }}>
+              <div style={{ background: "#faf8f2", border: "1px solid var(--line)", padding: "12px 14px", borderRadius: 8 }}>
+                <span style={{ fontSize: 11, color: "var(--muted)", display: "block" }}>ROLE &amp; DEPT</span>
+                <b style={{ fontSize: 13, color: "var(--ink)" }}>{selectedTrainee.role}</b>
+                <small style={{ display: "block", color: "var(--muted)", fontSize: 11 }}>{selectedTrainee.department}</small>
+              </div>
+
+              <div style={{ background: "#faf8f2", border: "1px solid var(--line)", padding: "12px 14px", borderRadius: 8 }}>
+                <span style={{ fontSize: 11, color: "var(--muted)", display: "block" }}>CURRICULUM TRACK</span>
+                <b style={{ fontSize: 13, color: "var(--ink)" }}>{selectedTrainee.enrolledCourse}</b>
+                <small style={{ display: "block", color: "var(--muted)", fontSize: 11 }}>Joined: {selectedTrainee.joinedDate}</small>
+              </div>
+
+              <div style={{ background: "#faf8f2", border: "1px solid var(--line)", padding: "12px 14px", borderRadius: 8 }}>
+                <span style={{ fontSize: 11, color: "var(--muted)", display: "block" }}>EVALUATION SCORE</span>
+                <b style={{ fontSize: 15, color: selectedTrainee.assessmentScore >= 80 ? "var(--green)" : selectedTrainee.assessmentScore >= 60 ? "var(--orange)" : "var(--rust)" }}>
+                  {selectedTrainee.assessmentScore > 0 ? `${selectedTrainee.assessmentScore}%` : "Pending Attempt"}
+                </b>
+                <small style={{ display: "block", color: "var(--muted)", fontSize: 11 }}>
+                  {selectedTrainee.assessmentScore >= 80 ? "Passed Benchmark (≥80%)" : "Needs Review"}
+                </small>
+              </div>
+            </div>
+
+            {/* Modular Progress Outline */}
+            <div style={{ background: "#fcfbf7", border: "1px solid var(--line)", borderRadius: 8, padding: 18, marginBottom: 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <b style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--muted)" }}>
+                  SYLLABUS PROGRESSION ({selectedTrainee.progress}%)
+                </b>
+                <span style={{ fontSize: 12, fontWeight: 600 }}>{Math.round(selectedTrainee.progress / 25)} of 4 Lessons Completed</span>
+              </div>
+
+              <div className="bar" style={{ height: 6, marginBottom: 14 }}>
+                <i style={{ width: `${selectedTrainee.progress}%`, background: selectedTrainee.progress === 100 ? "var(--green)" : "var(--orange)" }} />
+              </div>
+
+              <div style={{ display: "grid", gap: 8, fontSize: 12 }}>
+                {[
+                  { name: "Module 1: Principles & Frameworks", done: selectedTrainee.progress >= 25 },
+                  { name: "Module 2: Real-World Case Studies & Scenarios", done: selectedTrainee.progress >= 50 },
+                  { name: "Module 3: Cross-Team Alignment & Implementation", done: selectedTrainee.progress >= 75 },
+                  { name: "Module 4: Diagnostic Assessment & Synthesis", done: selectedTrainee.progress === 100 },
+                ].map((mod, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: mod.done ? "var(--ink)" : "var(--muted)" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <Icon name={mod.done ? "CheckCircle2" : "Circle"} size={14} style={{ color: mod.done ? "var(--green)" : "#bbb" }} />
+                      {mod.name}
+                    </span>
+                    <span style={{ font: "500 11px 'DM Mono'", color: mod.done ? "var(--green)" : "var(--muted)" }}>
+                      {mod.done ? "Completed" : "Pending"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Direct Facilitator Feedback */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 6 }}>
+                Send Direct Facilitator Feedback to {selectedTrainee.name}
+              </label>
+
+              {/* Quick Prompt Chips */}
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+                {[
+                  "Great work on completing the syllabus modules!",
+                  "Please review the DACI framework lesson before re-testing.",
+                  "Approved and recommended for verified credential.",
+                ].map((chip, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setTraineeFeedback(chip)}
+                    style={{
+                      fontSize: 11,
+                      background: "#f0eee6",
+                      border: "1px solid #dcd9ce",
+                      borderRadius: 4,
+                      padding: "3px 8px",
+                      cursor: "pointer",
+                      color: "var(--ink)",
+                    }}
+                  >
+                    + "{chip.slice(0, 32)}..."
+                  </button>
+                ))}
+              </div>
+
+              <textarea
+                rows={3}
+                placeholder="Type personalized instructional advice or assignment feedback..."
+                value={traineeFeedback}
+                onChange={(e) => setTraineeFeedback(e.target.value)}
+                style={{ width: "100%", padding: "9px 12px", border: "1px solid var(--line)", borderRadius: 6, background: "#faf8f2", fontSize: 13, resize: "vertical" }}
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, borderTop: "1px solid var(--line)", paddingTop: 16 }}>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  type="button"
+                  className="button outline"
+                  style={{ height: 32, fontSize: 12, gap: 5 }}
+                  onClick={() => {
+                    setTrainees((prev) =>
+                      prev.map((t) => (t.id === selectedTrainee.id ? { ...t, status: "Certified", statusTone: "green", progress: 100, assessmentScore: Math.max(t.assessmentScore, 88) } : t))
+                    );
+                    setSelectedTrainee((prev) => ({ ...prev, status: "Certified", statusTone: "green", progress: 100, assessmentScore: Math.max(prev.assessmentScore, 88) }));
+                    setActionNotice(`Endorsed official certificate for ${selectedTrainee.name}!`);
+                    setTimeout(() => setActionNotice(""), 3500);
+                  }}
+                >
+                  <Icon name="Award" size={14} /> Endorse Credential
+                </button>
+
+                <button
+                  type="button"
+                  className="button outline"
+                  style={{ height: 32, fontSize: 12, gap: 5 }}
+                  onClick={() => {
+                    setActionNotice(`Reset assessment attempt & notified ${selectedTrainee.name} to retake.`);
+                    setTimeout(() => setActionNotice(""), 3500);
+                  }}
+                >
+                  <Icon name="RotateCcw" size={13} /> Re-assign Assessment
+                </button>
+              </div>
+
+              <div style={{ display: "flex", gap: 8 }}>
+                <button type="button" className="button outline" onClick={() => setSelectedTrainee(null)}>
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className="button dark"
+                  style={{ gap: 6 }}
+                  onClick={() => {
+                    if (traineeFeedback.trim()) {
+                      setActionNotice(`Sent feedback to ${selectedTrainee.name}: "${traineeFeedback.trim()}"`);
+                      setTimeout(() => setActionNotice(""), 3500);
+                      setSelectedTrainee(null);
+                    } else {
+                      alert("Please type feedback or select a quick suggestion chip.");
+                    }
+                  }}
+                >
+                  <Icon name="Send" size={14} /> Send Feedback
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

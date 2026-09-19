@@ -3,8 +3,8 @@ import { AppIcon as Icon } from "../../components/AppIcon";
 import { PageHead } from "../../components/PageHead";
 import { loadNotifications, saveNotifications } from "../../data/notifications";
 
-export function Notifications({ setPage, onBack }) {
-  const [notifications, setNotifications] = useState(() => loadNotifications());
+export function Notifications({ setPage, onBack, role = "Trainee" }) {
+  const [notifications, setNotifications] = useState(() => loadNotifications(role));
   const [filter, setFilter] = useState("all");
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -17,7 +17,7 @@ export function Notifications({ setPage, onBack }) {
   const handleToggleRead = (id) => {
     setNotifications((prev) => {
       const updated = prev.map((n) => (n.id === id ? { ...n, read: !n.read } : n));
-      saveNotifications(updated);
+      saveNotifications(updated, role);
       return updated;
     });
   };
@@ -25,7 +25,7 @@ export function Notifications({ setPage, onBack }) {
   const handleMarkAllRead = () => {
     setNotifications((prev) => {
       const updated = prev.map((n) => ({ ...n, read: true }));
-      saveNotifications(updated);
+      saveNotifications(updated, role);
       return updated;
     });
   };
@@ -34,7 +34,7 @@ export function Notifications({ setPage, onBack }) {
     e.stopPropagation();
     setNotifications((prev) => {
       const updated = prev.filter((n) => n.id !== id);
-      saveNotifications(updated);
+      saveNotifications(updated, role);
       return updated;
     });
   };
@@ -42,7 +42,7 @@ export function Notifications({ setPage, onBack }) {
   const handleClearAll = () => {
     if (window.confirm("Clear all notifications?")) {
       setNotifications([]);
-      saveNotifications([]);
+      saveNotifications([], role);
     }
   };
 
