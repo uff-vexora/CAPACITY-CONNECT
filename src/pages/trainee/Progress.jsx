@@ -1,6 +1,10 @@
 import { Metric } from "../../components/Metric";
 import { PageHead } from "../../components/PageHead";
-export function Progress() {
+
+export function Progress({ courses = [] }) {
+  const completedCount = courses.filter((c) => c.progress === 100).length;
+  const enrolledCount = courses.filter((c) => c.enrolled !== false).length;
+
   return (
     <>
       <PageHead
@@ -9,7 +13,7 @@ export function Progress() {
       />
       <div className="progress-summary">
         <Metric value="72%" label="Current competency" detail="Up from 52%" />
-        <Metric value="3" label="Courses completed" />
+        <Metric value={String(completedCount)} label="Courses completed" detail={`${enrolledCount} enrolled pathways`} />
         <Metric value="18h" label="Learning time" />
         <Metric value="2" label="Certificates earned" />
       </div>

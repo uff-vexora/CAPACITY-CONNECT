@@ -2,11 +2,13 @@ import { AppIcon as Icon } from "../../components/AppIcon";
 import { CourseRow } from "../../components/CourseRow";
 import { PageHead } from "../../components/PageHead";
 import { ScoreBar } from "../../components/ScoreBar";
-import { courses } from "../../data/courses";
+import { courses as defaultCourses } from "../../data/courses";
 import { skills } from "../../data/skills";
 import { Journey } from "./Journey";
 
-export function TraineeDashboard({ setPage }) {
+export function TraineeDashboard({ setPage, courses = defaultCourses, onSelectCourse }) {
+  const displayCourses = courses && courses.length > 0 ? courses : defaultCourses;
+
   return (
     <>
       <PageHead kicker="TRAINEE WORKSPACE" title="Welcome back, Alex">
@@ -76,8 +78,13 @@ export function TraineeDashboard({ setPage }) {
             View all recommendations →
           </button>
         </div>
-        {courses.slice(0, 2).map((c) => (
-          <CourseRow key={c.title} course={c} setPage={setPage} />
+        {displayCourses.slice(0, 3).map((c) => (
+          <CourseRow
+            key={c.id || c.title}
+            course={c}
+            setPage={setPage}
+            onSelectCourse={onSelectCourse}
+          />
         ))}
       </div>
     </>
