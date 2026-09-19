@@ -168,7 +168,15 @@ export function TraineeRoutes({ page, setPage, user, setUser }) {
 
   if (page === "Assessment Result") return <AssessmentResult onViewGap={() => setPage("Skill Gap")} />;
 
-  if (page === "Skill Gap") return <SkillGap setPage={setPage} />;
+  if (page === "Skill Gap")
+    return (
+      <SkillGap
+        setPage={setPage}
+        onSelectCourse={handleSelectCourse}
+        onGoToAssessment={handleGoToAssessment}
+        courses={courseList}
+      />
+    );
 
   if (page === "Recommended")
     return <Recommended setPage={setPage} courses={courseList} onSelectCourse={handleSelectCourse} />;
