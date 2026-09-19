@@ -103,18 +103,7 @@ export function AppShell({
                 <Icon name={icon} />
                 <span className="nav-label">{name}</span>
                 {isNotif && unreadCount > 0 && (
-                  <span
-                    className="nav-badge"
-                    style={{
-                      marginLeft: "auto",
-                      background: "var(--rust)",
-                      color: "#fff",
-                      borderRadius: 10,
-                      padding: "1px 6px",
-                      fontSize: 10,
-                      fontWeight: 600,
-                    }}
-                  >
+                  <span className="nav-badge">
                     {unreadCount}
                   </span>
                 )}

@@ -34,10 +34,13 @@
 .app-shell aside.collapsed{width:70px;padding:22px 10px}
 .app-shell aside.collapsed .sidebar-header{justify-content:center;flex-direction:column;gap:12px}
 .app-shell aside.collapsed .brand span:not(.brand-mark){display:none}
-.app-shell aside.collapsed .role-tag{display:none}
-.app-shell aside.collapsed nav button{justify-content:center;padding:10px 0}
+.nav-badge{margin-left:auto;background:var(--rust);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:600;line-height:1.2}
+.app-shell aside.collapsed nav button{justify-content:center;padding:10px 0;position:relative;gap:0}
+.app-shell aside.collapsed nav button svg{display:block;margin:0 auto}
 .app-shell aside.collapsed nav button .nav-label{display:none}
-.app-shell aside.collapsed .side-bottom>button{justify-content:center;padding:10px 0}
+.app-shell aside.collapsed nav button .nav-badge{position:absolute;top:6px;right:22px;width:7px;height:7px;min-width:7px;border-radius:50%;padding:0;font-size:0;margin:0;border:1px solid #23261f}
+.app-shell aside.collapsed .side-bottom>button{justify-content:center;padding:10px 0;gap:0}
+.app-shell aside.collapsed .side-bottom>button svg{display:block;margin:0 auto}
 .app-shell aside.collapsed .side-bottom>button .nav-label{display:none}
 .app-shell aside.collapsed .person div,.app-shell aside.collapsed .person>svg{display:none}
 .app-shell aside.collapsed .person{justify-content:center;padding:14px 0 0}
